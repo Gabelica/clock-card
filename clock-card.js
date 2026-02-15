@@ -150,6 +150,23 @@ class ClockCard extends HTMLElement {
   getCardSize() {
     return 3;
   }
+
+  static getConfigElement() {
+    return document.createElement("clock-card-editor");
+  }
+
+  static getStubConfig() {
+    return { show_date: true, size: 300 };
+  }
+
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "show_date", selector: { boolean: {} } },
+        { name: "size", selector: { number: { min: 50, max: 1000 } } },
+      ],
+    };
+  }
 }
 
 customElements.define("clock-card", ClockCard);
@@ -160,4 +177,3 @@ window.customCards.push({
   preview: true,
   description: "Clock card with optional date and configurable size",
 });
-// Editor moved to `clock-card-editor.js` so it can be loaded as a separate Lovelace resource.
