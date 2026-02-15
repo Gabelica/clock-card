@@ -43,9 +43,15 @@ class ClockCard extends HTMLElement {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .clock-text {
           position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           font-size: calc(var(--clock-size, 300px) * 0.3);
           font-weight: bold;
           color: var(--primary-text-color);
@@ -55,6 +61,8 @@ class ClockCard extends HTMLElement {
         .date-text {
           position: absolute;
           top: 65%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           font-size: calc(var(--clock-size, 300px) * 0.1);
           color: var(--primary-text-color);
           z-index: 2;
