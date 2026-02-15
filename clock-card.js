@@ -48,7 +48,7 @@ class ClockCard extends HTMLElement {
         }
         .date-text {
           position: absolute;
-          top: 70%;
+          top: 65%;
           left: 50%;
           transform: translateX(-50%);
           font-size: calc(var(--clock-size, 300px) * 0.15);
@@ -56,14 +56,6 @@ class ClockCard extends HTMLElement {
           z-index: 2;
           text-align: center;
           opacity: 0.95;
-        }
-        .date-text {
-          position: absolute;
-          font-size: 2rem;
-          font-weight: bold;
-          color: var(--primary-text-color);
-          z-index: 1;
-          font-family: var(--paper-font-headline_-_font-family);
         }
         svg {
           position: absolute;
@@ -184,7 +176,16 @@ class ClockCard extends HTMLElement {
             { show_date: true, size: 300 },
             config || {},
           );
-          this.render();
+
+          if (!this._rendered) {
+            this.render();
+            this._rendered = true;
+          } else {
+            const showDateInput = this.querySelector("#showDate");
+            const sizeInput = this.querySelector("#size");
+            if (showDateInput) showDateInput.checked = this._config.show_date;
+            if (sizeInput) sizeInput.value = this._config.size;
+          }
         }
 
         set hass(hass) {
@@ -219,10 +220,13 @@ class ClockCard extends HTMLElement {
         }
 
         _valueChanged() {
-          const newConfig = Object.assign({}, this._config, {
+          const newConfig = {
             show_date: this.querySelector("#showDate").checked,
             size: Number(this.querySelector("#size").value),
-          });
+          };
+
+          this._config = Object.assign({}, this._config, newConfig);
+
           const ev = new Event("config-changed", {
             bubbles: true,
             composed: true,
