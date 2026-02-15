@@ -167,10 +167,67 @@ class ClockCard extends HTMLElement {
         return undefined;
       },
       computeHelper: (schema) => {
-        if (schema.name === "size") return "Clock diameter in pixels (recommended 100-400).";
+        if (schema.name === "size")
+          return "Clock diameter in pixels (recommended 100-400).";
         return undefined;
       },
     };
+  }
+
+  static getConfigElement() {
+    const tag = "clock-card-config";
+
+    if (!customElements.get(tag)) {
+      class ClockCardConfig extends HTMLElement {
+        setConfig(config) {
+          this._config = Object.assign(
+            { show_date: true, size: 300 },
+            config || {},
+          );
+          this.render();
+        }
+
+        render() {
+          const cfg = this._config || { show_date: true, size: 300 };
+          this.innerHTML = `
+            <div style="padding:12px; display:flex; flex-direction:column; gap:8px;">
+              <label style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="showDate" ${cfg.show_date ? "checked" : ""} />
+                <span>Show date</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:8px;">
+                <span>Size (px)</span>
+                <input type="number" id="size" value="${cfg.size}" min="50" max="1000" style="width:100px;" />
+              </label>
+            </div>
+          `;
+
+          this.querySelector("#showDate").addEventListener("change", () =>
+            this._valueChanged(),
+          );
+          this.querySelector("#size").addEventListener("input", () =>
+            this._valueChanged(),
+          );
+        }
+
+        _valueChanged() {
+          const newConfig = Object.assign({}, this._config, {
+            show_date: this.querySelector("#showDate").checked,
+            size: Number(this.querySelector("#size").value),
+          });
+          const ev = new Event("config-changed", {
+            bubbles: true,
+            composed: true,
+          });
+          ev.detail = { config: newConfig };
+          this.dispatchEvent(ev);
+        }
+      }
+
+      customElements.define(tag, ClockCardConfig);
+    }
+
+    return document.createElement(tag);
   }
 }
 
