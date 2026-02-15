@@ -58,10 +58,10 @@ class ClockCard extends HTMLElement {
           font-size: calc(var(--clock-size, 300px) * 0.1);
           color: var(--primary-text-color);
           z-index: 2;
-          hidden {
-            display: none;
-            }        
-        }        
+        }
+        .date-text.hidden {
+          display: none;
+        }
         svg {
           position: absolute;
           top: 0;
@@ -152,81 +152,38 @@ class ClockCard extends HTMLElement {
     return { show_date: true, size: 300 };
   }
 
-  static getConfigElement() {
-    const tag = "clock-card-config";
-
-    if (!customElements.get(tag)) {
-      class ClockCardConfig extends HTMLElement {
-        setConfig(config) {
-          this._config = Object.assign(
-            { show_date: true, size: 300 },
-            config || {},
-          );
-
-          if (!this._rendered) {
-            this.render();
-            this._rendered = true;
-          } else {
-            const showDateInput = this.querySelector("#showDate");
-            const sizeInput = this.querySelector("#size");
-            if (showDateInput) showDateInput.checked = this._config.show_date;
-            if (sizeInput) sizeInput.value = this._config.size;
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "show_date", selector: { boolean: {} } },
+        { name: "size", selector: { number: { min: 50, max: 1000 } } },
+      ],
+      computeLabel: (schema) => {
+        if (schema.name === "show_date") return "Show date";
+        if (schema.name === "size") return "Size (px)";
+        return undefined;
+      },
+      computeHelper: (schema) => {
+        if (schema.name === "size")
+          return "Clock diameter in pixels (recommended 100-400).";
+        return undefined;
+      },
+      assertConfig: (config) => {
+        if (config.size !== undefined) {
+          if (typeof config.size !== "number") {
+            throw new Error("Size must be a number");
+          }
+          if (config.size < 50 || config.size > 1000) {
+            throw new Error("Size must be between 50 and 1000");
           }
         }
-
-        set hass(hass) {
-          this._hass = hass;
+        if (config.show_date !== undefined) {
+          if (typeof config.show_date !== "boolean") {
+            throw new Error("Show date must be a boolean");
+          }
         }
-
-        set lovelace(lovelace) {
-          this._lovelace = lovelace;
-        }
-
-        render() {
-          const cfg = this._config || { show_date: true, size: 300 };
-          this.innerHTML = `
-            <div style="padding:12px; display:flex; flex-direction:column; gap:8px;">
-              <label style="display:flex; align-items:center; gap:8px;">
-                <input type="checkbox" id="showDate" ${cfg.show_date ? "checked" : ""} />
-                <span>Show date</span>
-              </label>
-              <label style="display:flex; align-items:center; gap:8px;">
-                <span>Size (px)</span>
-                <input type="number" id="size" value="${cfg.size}" min="50" max="1000" style="width:100px;" />
-              </label>
-            </div>
-          `;
-
-          this.querySelector("#showDate").addEventListener("change", () =>
-            this._valueChanged(),
-          );
-          this.querySelector("#size").addEventListener("input", () =>
-            this._valueChanged(),
-          );
-        }
-
-        _valueChanged() {
-          const newConfig = {
-            type: "custom:clock-card",
-            show_date: this.querySelector("#showDate").checked,
-            size: Number(this.querySelector("#size").value),
-          };
-
-          this._config = Object.assign({}, this._config, newConfig);
-
-          const ev = new Event("config-changed", {
-            bubbles: true,
-            composed: true,
-          });
-          ev.detail = { config: newConfig };
-          this.dispatchEvent(ev);
-        }
-      }
-
-      customElements.define(tag, ClockCardConfig);
-    }
-
-    return document.createElement(tag);
+      },
+    };
   }
 }
 
