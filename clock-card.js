@@ -43,35 +43,26 @@ class ClockCard extends HTMLElement {
           width: 100%;
           aspect-ratio: 1 / 1;
           margin: auto;
-          display: flex;
-          align-items: center;
-          justify-content: center;
         }
         .clock-text {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
           font-size: calc(var(--clock-size, 300px) * 0.3);
           font-weight: bold;
           color: var(--primary-text-color);
           z-index: 2;
-          text-align: center;
           font-family: var(--paper-font-headline_-_font-family);
         }
         .date-text {
           position: absolute;
           top: 65%;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: calc(var(--clock-size, 300px) * 0.15);
+          font-size: calc(var(--clock-size, 300px) * 0.1);
           color: var(--primary-text-color);
           z-index: 2;
-          text-align: center;
-          opacity: 0.95;
-        }        .date-text.hidden {
-          display: none;
-        }        svg {
+          hidden {
+            display: none;
+            }        
+        }        
+        svg {
           position: absolute;
           top: 0;
           width: 100%;
