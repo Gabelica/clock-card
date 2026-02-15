@@ -221,6 +221,7 @@ class ClockCard extends HTMLElement {
 
         _valueChanged() {
           const newConfig = {
+            type: "custom:clock-card",
             show_date: this.querySelector("#showDate").checked,
             size: Number(this.querySelector("#size").value),
           };
