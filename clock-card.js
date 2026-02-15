@@ -187,6 +187,14 @@ class ClockCard extends HTMLElement {
           this.render();
         }
 
+        set hass(hass) {
+          this._hass = hass;
+        }
+
+        set lovelace(lovelace) {
+          this._lovelace = lovelace;
+        }
+
         render() {
           const cfg = this._config || { show_date: true, size: 300 };
           this.innerHTML = `
