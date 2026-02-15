@@ -147,25 +147,6 @@ class ClockCard extends HTMLElement {
     return { show_date: true, size: 300 };
   }
 
-  static getConfigForm() {
-    return {
-      schema: [
-        { name: "show_date", selector: { boolean: {} } },
-        { name: "size", selector: { number: { min: 50, max: 1000 } } },
-      ],
-      computeLabel: (schema) => {
-        if (schema.name === "show_date") return "Show date";
-        if (schema.name === "size") return "Size (px)";
-        return undefined;
-      },
-      computeHelper: (schema) => {
-        if (schema.name === "size")
-          return "Clock diameter in pixels (recommended 100-400).";
-        return undefined;
-      },
-    };
-  }
-
   static getConfigElement() {
     const tag = "clock-card-config";
 
