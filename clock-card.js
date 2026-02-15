@@ -3,19 +3,32 @@ class ClockCard extends HTMLElement {
     this._hass = hass;
     if (!this.content) {
       this.init();
+      if (this.config) {
+        this._applyConfig();
+      }
     }
     this.updateClock();
   }
 
   setConfig(config) {
     this.config = Object.assign({ show_date: true, size: 300 }, config || {});
-
     if (this.content) {
-      this.content.style.setProperty("--clock-size", `${this.config.size}px`);
-      if (this.dateDisplay)
-        this.dateDisplay.style.display = this.config.show_date
-          ? "block"
-          : "none";
+      this._applyConfig();
+    }
+  }
+
+  _applyConfig() {
+    if (!this.config || !this.content) return;
+
+    this.content.style.setProperty("--clock-size", `${this.config.size}px`);
+    this.style.setProperty("--clock-size", `${this.config.size}px`);
+
+    if (this.dateDisplay) {
+      if (this.config.show_date) {
+        this.dateDisplay.classList.remove("hidden");
+      } else {
+        this.dateDisplay.classList.add("hidden");
+      }
     }
   }
 
@@ -56,8 +69,9 @@ class ClockCard extends HTMLElement {
           z-index: 2;
           text-align: center;
           opacity: 0.95;
-        }
-        svg {
+        }        .date-text.hidden {
+          display: none;
+        }        svg {
           position: absolute;
           top: 0;
           width: 100%;
