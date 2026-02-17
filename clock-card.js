@@ -15,8 +15,10 @@ class ClockCard extends HTMLElement {
       {
         show_date: true,
         size: 300,
+        show_background: false,
         background_color: "transparent",
         number_color: "var(--primary-text-color)",
+        background_shape: "square",
       },
       config || {}
     );
@@ -32,9 +34,13 @@ class ClockCard extends HTMLElement {
     this.style.setProperty("--clock-size", `${this.config.size}px`);
     this.style.setProperty(
       "--clock-background-color",
-      this.config.background_color
+      this.config.show_background ? this.config.background_color : "transparent"
     );
     this.style.setProperty("--clock-number-color", this.config.number_color);
+    this.style.setProperty(
+      "--clock-background-radius",
+      this.config.background_shape === "circle" ? "50%" : "0"
+    );
 
     if (this.dateDisplay) {
       if (this.config.show_date) {
@@ -57,6 +63,8 @@ class ClockCard extends HTMLElement {
           max-width: 100%;
           aspect-ratio: 1 / 1;
           margin: auto;
+          border-radius: var(--clock-background-radius, 0);
+          overflow: hidden;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -174,8 +182,10 @@ class ClockCard extends HTMLElement {
     return {
       show_date: true,
       size: 300,
+      show_background: false,
       background_color: "transparent",
       number_color: "var(--primary-text-color)",
+      background_shape: "square",
     };
   }
 
@@ -184,23 +194,47 @@ class ClockCard extends HTMLElement {
       schema: [
         { name: "show_date", selector: { boolean: {} } },
         { name: "size", selector: { number: { min: 50, max: 1000 } } },
-        { name: "background_color", selector: { text: {} } },
+        { name: "show_background", selector: { boolean: {} } },
+        {
+          name: "background_color",
+          selector: { text: {} },
+          condition: { name: "show_background", value: true },
+        },
         { name: "number_color", selector: { text: {} } },
+        {
+          name: "background_shape",
+          selector: {
+            select: {
+              options: [
+                { value: "square", label: "Square" },
+                { value: "circle", label: "Circle" },
+              ],
+              mode: "dropdown",
+            },
+          },
+          condition: { name: "show_background", value: true },
+        },
       ],
       computeLabel: (schema) => {
         if (schema.name === "show_date") return "Show date";
         if (schema.name === "size") return "Size (px)";
+        if (schema.name === "show_background") return "Show background";
         if (schema.name === "background_color") return "Background color";
         if (schema.name === "number_color") return "Number color";
+        if (schema.name === "background_shape") return "Background shape";
         return undefined;
       },
       computeHelper: (schema) => {
         if (schema.name === "size")
           return "Clock diameter in pixels (recommended 100-400).";
+        if (schema.name === "show_background")
+          return "Enable or disable background fill.";
         if (schema.name === "background_color")
           return "CSS color value (example: #111111, rgba(0,0,0,0.4), transparent).";
         if (schema.name === "number_color")
           return "CSS color value for clock numbers/date (example: #ffffff, var(--primary-text-color)).";
+        if (schema.name === "background_shape")
+          return "Choose whether the background is a square or full circle.";
         return undefined;
       },
       assertConfig: (config) => {
@@ -217,6 +251,11 @@ class ClockCard extends HTMLElement {
             throw new Error("Show date must be a boolean");
           }
         }
+        if (config.show_background !== undefined) {
+          if (typeof config.show_background !== "boolean") {
+            throw new Error("Show background must be a boolean");
+          }
+        }
         if (
           config.background_color !== undefined &&
           typeof config.background_color !== "string"
@@ -228,6 +267,17 @@ class ClockCard extends HTMLElement {
           typeof config.number_color !== "string"
         ) {
           throw new Error("Number color must be a string");
+        }
+        if (config.background_shape !== undefined) {
+          if (typeof config.background_shape !== "string") {
+            throw new Error("Background shape must be a string");
+          }
+          if (
+            config.background_shape !== "square" &&
+            config.background_shape !== "circle"
+          ) {
+            throw new Error("Background shape must be 'square' or 'circle'");
+          }
         }
       },
     };
