@@ -115,6 +115,15 @@
       </div>
 
       <div class="field">
+        <label for="dateFormat">Date format</label>
+        <select id="dateFormat">
+          <option value="locale">Browser</option>
+          <option value="dd_mm">DD/MM</option>
+          <option value="mm_dd">MM/DD</option>
+        </select>
+      </div>
+
+      <div class="field">
         <label for="timeFormat">Time format</label>
         <select id="timeFormat">
           <option value="24">24-hour</option>
@@ -156,6 +165,7 @@
       const card = document.getElementById("my-card");
       const sizeInput = document.getElementById("size");
       const showDateInput = document.getElementById("showDate");
+      const dateFormatInput = document.getElementById("dateFormat");
       const timeFormatInput = document.getElementById("timeFormat");
       const showBackgroundInput = document.getElementById("showBackground");
       const backgroundColorInput = document.getElementById("backgroundColor");
@@ -175,6 +185,7 @@
           type: "custom:clock-card",
           size: Number(sizeInput.value) || 300,
           show_date: showDateInput.checked,
+          date_format: dateFormatInput.value || "locale",
           time_format: timeFormatInput.value || "24",
           show_background: showBackgroundInput.checked,
           background_color: backgroundColorInput.value || "transparent",
@@ -192,6 +203,7 @@
         [
           sizeInput,
           showDateInput,
+          dateFormatInput,
           timeFormatInput,
           showBackgroundInput,
           backgroundColorInput,

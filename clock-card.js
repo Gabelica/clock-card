@@ -1,5 +1,6 @@
 const DEFAULT_CONFIG = {
   show_date: true,
+  date_format: "locale",
   size: 300,
   time_format: "24",
   show_background: false,
@@ -59,6 +60,21 @@ class ClockCard extends HTMLElement {
   }
 
   init() {
+    this.dateFormatters = {
+      locale: new Intl.DateTimeFormat(undefined, {
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      dd_mm: new Intl.DateTimeFormat("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+      }),
+      mm_dd: new Intl.DateTimeFormat("en-US", {
+        month: "2-digit",
+        day: "2-digit",
+      }),
+    };
+
     this.innerHTML = `
       <style>
         ha-card {
@@ -163,10 +179,26 @@ class ClockCard extends HTMLElement {
     this.secondsRing = this.querySelector("#seconds-ring");
   }
 
+  _formatDate(now) {
+    const dateFormat = (this.config && this.config.date_format) || "locale";
+    const formatter =
+      this.dateFormatters &&
+      this.dateFormatters[dateFormat]
+        ? this.dateFormatters[dateFormat]
+        : this.dateFormatters.locale;
+
+    if (formatter) {
+      return formatter.format(now);
+    }
+
+    return `${String(now.getMonth() + 1).padStart(2, "0")}/${String(
+      now.getDate(),
+    ).padStart(2, "0")}`;
+  }
+
   updateClock() {
     const now = new Date();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
+    const formattedDate = this._formatDate(now);
     const format12h = this.config && this.config.time_format === "12";
     const rawHours = now.getHours();
     const hours = format12h
@@ -187,7 +219,7 @@ class ClockCard extends HTMLElement {
       }
     }
     if (this.dateDisplay) {
-      this.dateDisplay.innerText = `${month}/${day}`;
+      this.dateDisplay.innerText = formattedDate;
     }
     if (this.secondsRing) {
       const r = 140;
@@ -241,6 +273,20 @@ class ClockCard extends HTMLElement {
     return {
       schema: [
         { name: "show_date", selector: { boolean: {} } },
+        {
+          name: "date_format",
+          selector: {
+            select: {
+              options: [
+                { value: "locale", label: "Browser" },
+                { value: "dd_mm", label: "DD/MM" },
+                { value: "mm_dd", label: "MM/DD" },
+              ],
+              mode: "dropdown",
+            },
+          },
+          condition: { name: "show_date", value: true },
+        },
         { name: "size", selector: { number: { min: 50, max: 1000 } } },
         {
           name: "time_format",
@@ -277,6 +323,7 @@ class ClockCard extends HTMLElement {
       ],
       computeLabel: (schema) => {
         if (schema.name === "show_date") return "Show date";
+        if (schema.name === "date_format") return "Date format";
         if (schema.name === "size") return "Size (px)";
         if (schema.name === "time_format") return "Time format";
         if (schema.name === "show_background") return "Show background";
@@ -288,6 +335,8 @@ class ClockCard extends HTMLElement {
       computeHelper: (schema) => {
         if (schema.name === "size")
           return "Clock diameter in pixels (recommended 100-400).";
+        if (schema.name === "date_format")
+          return "Choose locale-aware or fixed DD/MM and MM/DD formats.";
         if (schema.name === "time_format")
           return "Choose between 24-hour and 12-hour clock display.";
         if (schema.name === "show_background")
@@ -312,6 +361,18 @@ class ClockCard extends HTMLElement {
         if (config.show_date !== undefined) {
           if (typeof config.show_date !== "boolean") {
             throw new Error("Show date must be a boolean");
+          }
+        }
+        if (config.date_format !== undefined) {
+          if (typeof config.date_format !== "string") {
+            throw new Error("Date format must be a string");
+          }
+          if (
+            config.date_format !== "locale" &&
+            config.date_format !== "dd_mm" &&
+            config.date_format !== "mm_dd"
+          ) {
+            throw new Error("Date format must be 'locale', 'dd_mm', or 'mm_dd'");
           }
         }
         if (config.time_format !== undefined) {
