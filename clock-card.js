@@ -20,7 +20,7 @@ class ClockCard extends HTMLElement {
         number_color: "var(--primary-text-color)",
         background_shape: "square",
       },
-      config || {}
+      config || {},
     );
     if (this.content) {
       this._applyConfig();
@@ -34,12 +34,14 @@ class ClockCard extends HTMLElement {
     this.style.setProperty("--clock-size", `${this.config.size}px`);
     this.style.setProperty(
       "--clock-background-color",
-      this.config.show_background ? this.config.background_color : "transparent"
+      this.config.show_background
+        ? this.config.background_color
+        : "transparent",
     );
     this.style.setProperty("--clock-number-color", this.config.number_color);
     this.style.setProperty(
       "--clock-background-radius",
-      this.config.background_shape === "circle" ? "50%" : "0"
+      this.config.background_shape === "circle" ? "50%" : "0",
     );
 
     if (this.dateDisplay) {
@@ -62,7 +64,7 @@ class ClockCard extends HTMLElement {
           width: var(--clock-size, 300px);
           max-width: 100%;
           aspect-ratio: 1 / 1;
-          margin: auto;
+          margin: 0;
           border-radius: var(--clock-background-radius, 0);
           overflow: hidden;
           display: flex;
@@ -74,7 +76,7 @@ class ClockCard extends HTMLElement {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: calc(var(--clock-size, 300px) * 0.3);
+          font-size: calc(var(--clock-size, 300px) * 0.25);
           font-weight: bold;
           color: var(--clock-number-color, var(--primary-text-color));
           z-index: 2;
@@ -82,10 +84,10 @@ class ClockCard extends HTMLElement {
         }
         .date-text {
           position: absolute;
-          top: 65%;
+          top: 70%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: calc(var(--clock-size, 300px) * 0.1);
+          font-size: calc(var(--clock-size, 300px) * 0.07);
           color: var(--clock-number-color, var(--primary-text-color));
           z-index: 2;
         }
@@ -122,6 +124,11 @@ class ClockCard extends HTMLElement {
         </svg>
       </ha-card>
     `;
+    this.style.display = "flex";
+    this.style.alignItems = "center";
+    this.style.justifyContent = "center";
+    this.style.width = "100%";
+    this.style.height = "100%";
     this.content = this.querySelector("ha-card");
     this.timeDisplay = this.querySelector("#time-display");
     this.dateDisplay = this.querySelector("#date-display");
@@ -287,7 +294,7 @@ class ClockCard extends HTMLElement {
 customElements.define("clock-card", ClockCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: "custom:clock-card",
+  type: "clock-card",
   name: "Clock Card",
   preview: true,
   description:

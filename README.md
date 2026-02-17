@@ -2,14 +2,10 @@
 
 A sleek, modern digital clock card for Home Assistant featuring a smooth, animated radial seconds ring.
 
-![Clock Card Preview]() 
-
 ## Features
 - **Real-time Digital Clock:** Large, readable HH:MM display.
 - **Animated Seconds Ring:** A smooth, radial progress bar that fills as the minute progresses.
-- **Zero Configuration:** Works out of the box with your browser's local time.
 - **Lightweight:** Pure JavaScript/CSS with no external dependencies.
-- **HACS Ready:** Easy installation and updates.
 
 ## Installation
 
@@ -37,6 +33,13 @@ type: custom:clock-card
 ```
 
 ## Development
+
+### Local Development Workflow
+
+1. Edit `clock-card.js`.
+2. Use `preview.html` for quick local testing of card options.
+   - Open it directly in your browser or with [VSCode live server extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer).
+3. Test in Home Assistant using HACS install or manual install.
 
 ### Releasing Updates (HACS)
 

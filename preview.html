@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clock Card Preview</title>
+    <style>
+      :root {
+        --primary-color: #04b057;
+        --primary-text-color: #ffffff;
+        --divider-color: rgba(255, 255, 255, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 20px;
+        display: grid;
+        gap: 20px;
+        grid-template-columns: 320px minmax(280px, 1fr);
+        align-items: start;
+        background: #202020;
+        color: #f2f2f2;
+        font-family: system-ui, sans-serif;
+      }
+
+      .panel {
+        background: #2b2b2b;
+        border: 1px solid #3a3a3a;
+        border-radius: 10px;
+        padding: 14px;
+      }
+
+      .panel h2 {
+        margin: 0 0 12px;
+        font-size: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+
+      .field label {
+        font-size: 13px;
+        color: #d7d7d7;
+      }
+
+      .field input,
+      .field select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #4a4a4a;
+        background: #1f1f1f;
+        color: #fff;
+        border-radius: 8px;
+      }
+
+      .field.checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .field.checkbox input {
+        width: auto;
+      }
+
+      .preview-wrap {
+        background: #151515;
+        border: 1px dashed #444;
+        border-radius: 12px;
+        min-height: 540px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+      }
+
+      .card-container {
+        width: 100%;
+        max-width: 600px;
+        min-height: 400px;
+        border: 1px dashed #2f2f2f;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      @media (max-width: 860px) {
+        body {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <script type="module" src="./clock-card.js"></script>
+  </head>
+  <body>
+    <section class="panel">
+      <h2>Clock Card Controls</h2>
+
+      <div class="field">
+        <label for="size">Size (px)</label>
+        <input id="size" type="number" min="50" max="1000" value="300" />
+      </div>
+
+      <div class="field checkbox">
+        <input id="showDate" type="checkbox" checked />
+        <label for="showDate">Show date</label>
+      </div>
+
+      <div class="field checkbox">
+        <input id="showBackground" type="checkbox" />
+        <label for="showBackground">Show background</label>
+      </div>
+
+      <div class="field" id="backgroundColorField" style="display: none">
+        <label for="backgroundColor">Background color</label>
+        <input id="backgroundColor" type="text" value="#1f1f1f" />
+      </div>
+
+      <div class="field" id="backgroundShapeField" style="display: none">
+        <label for="backgroundShape">Background shape</label>
+        <select id="backgroundShape">
+          <option value="square">Square</option>
+          <option value="circle">Circle</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="numberColor">Number color</label>
+        <input id="numberColor" type="text" value="#ffffff" />
+      </div>
+    </section>
+
+    <section class="preview-wrap">
+      <div class="card-container">
+        <clock-card id="my-card"></clock-card>
+      </div>
+    </section>
+
+    <script>
+      const card = document.getElementById("my-card");
+      const sizeInput = document.getElementById("size");
+      const showDateInput = document.getElementById("showDate");
+      const showBackgroundInput = document.getElementById("showBackground");
+      const backgroundColorInput = document.getElementById("backgroundColor");
+      const backgroundShapeInput = document.getElementById("backgroundShape");
+      const numberColorInput = document.getElementById("numberColor");
+      const backgroundColorField = document.getElementById("backgroundColorField");
+      const backgroundShapeField = document.getElementById("backgroundShapeField");
+
+      function updateBackgroundFields() {
+        const visible = showBackgroundInput.checked;
+        backgroundColorField.style.display = visible ? "grid" : "none";
+        backgroundShapeField.style.display = visible ? "grid" : "none";
+      }
+
+      function applyConfig() {
+        card.setConfig({
+          type: "custom:clock-card",
+          size: Number(sizeInput.value) || 300,
+          show_date: showDateInput.checked,
+          show_background: showBackgroundInput.checked,
+          background_color: backgroundColorInput.value || "transparent",
+          background_shape: backgroundShapeInput.value || "square",
+          number_color: numberColorInput.value || "var(--primary-text-color)",
+        });
+
+        card.hass = { states: {} };
+      }
+
+      customElements.whenDefined("clock-card").then(() => {
+        updateBackgroundFields();
+        applyConfig();
+
+        [
+          sizeInput,
+          showDateInput,
+          showBackgroundInput,
+          backgroundColorInput,
+          backgroundShapeInput,
+          numberColorInput,
+        ].forEach((el) => {
+          el.addEventListener("input", () => {
+            updateBackgroundFields();
+            applyConfig();
+          });
+          el.addEventListener("change", () => {
+            updateBackgroundFields();
+            applyConfig();
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
