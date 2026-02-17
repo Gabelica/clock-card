@@ -15,6 +15,7 @@ class ClockCard extends HTMLElement {
       {
         show_date: true,
         size: 300,
+        time_format: "24",
         show_background: false,
         background_color: "transparent",
         number_color: "var(--primary-text-color)",
@@ -51,6 +52,12 @@ class ClockCard extends HTMLElement {
         this.dateDisplay.classList.add("hidden");
       }
     }
+    if (this.timeDisplay) {
+      this.timeDisplay.classList.toggle(
+        "twelve-hour",
+        this.config.time_format === "12"
+      );
+    }
   }
 
   init() {
@@ -81,6 +88,18 @@ class ClockCard extends HTMLElement {
           color: var(--clock-number-color, var(--primary-text-color));
           z-index: 2;
           font-family: var(--paper-font-headline_-_font-family);
+          white-space: nowrap;
+        }
+        .clock-text.twelve-hour {
+          font-size: calc(var(--clock-size, 300px) * 0.24);
+        }
+        .clock-text .meridiem {
+          display: inline-block;
+          margin-left: 0.18em;
+          font-size: 0.38em;
+          vertical-align: super;
+          letter-spacing: 0.03em;
+          opacity: 0.9;
         }
         .date-text {
           position: absolute;
@@ -139,12 +158,21 @@ class ClockCard extends HTMLElement {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, "0");
     const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
+    const format12h = this.config && this.config.time_format === "12";
+    const rawHours = now.getHours();
+    const hours = format12h
+      ? String(((rawHours + 11) % 12) + 1).padStart(2, "0")
+      : String(rawHours).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
+    const meridiem = rawHours >= 12 ? "PM" : "AM";
     const seconds = now.getSeconds();
 
     if (this.timeDisplay) {
-      this.timeDisplay.innerText = `${hours}:${minutes}`;
+      if (format12h) {
+        this.timeDisplay.innerHTML = `${hours}:${minutes}<span class="meridiem">${meridiem}</span>`;
+      } else {
+        this.timeDisplay.textContent = `${hours}:${minutes}`;
+      }
     }
     if (this.dateDisplay) {
       this.dateDisplay.innerText = `${month}/${day}`;
@@ -189,6 +217,7 @@ class ClockCard extends HTMLElement {
     return {
       show_date: true,
       size: 300,
+      time_format: "24",
       show_background: false,
       background_color: "transparent",
       number_color: "var(--primary-text-color)",
@@ -201,6 +230,18 @@ class ClockCard extends HTMLElement {
       schema: [
         { name: "show_date", selector: { boolean: {} } },
         { name: "size", selector: { number: { min: 50, max: 1000 } } },
+        {
+          name: "time_format",
+          selector: {
+            select: {
+              options: [
+                { value: "24", label: "24-hour" },
+                { value: "12", label: "12-hour" },
+              ],
+              mode: "dropdown",
+            },
+          },
+        },
         { name: "show_background", selector: { boolean: {} } },
         {
           name: "background_color",
@@ -225,6 +266,7 @@ class ClockCard extends HTMLElement {
       computeLabel: (schema) => {
         if (schema.name === "show_date") return "Show date";
         if (schema.name === "size") return "Size (px)";
+        if (schema.name === "time_format") return "Time format";
         if (schema.name === "show_background") return "Show background";
         if (schema.name === "background_color") return "Background color";
         if (schema.name === "number_color") return "Number color";
@@ -234,6 +276,8 @@ class ClockCard extends HTMLElement {
       computeHelper: (schema) => {
         if (schema.name === "size")
           return "Clock diameter in pixels (recommended 100-400).";
+        if (schema.name === "time_format")
+          return "Choose between 24-hour and 12-hour clock display.";
         if (schema.name === "show_background")
           return "Enable or disable background fill.";
         if (schema.name === "background_color")
@@ -256,6 +300,14 @@ class ClockCard extends HTMLElement {
         if (config.show_date !== undefined) {
           if (typeof config.show_date !== "boolean") {
             throw new Error("Show date must be a boolean");
+          }
+        }
+        if (config.time_format !== undefined) {
+          if (typeof config.time_format !== "string") {
+            throw new Error("Time format must be a string");
+          }
+          if (config.time_format !== "24" && config.time_format !== "12") {
+            throw new Error("Time format must be '24' or '12'");
           }
         }
         if (config.show_background !== undefined) {

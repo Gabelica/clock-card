@@ -114,6 +114,14 @@
         <label for="showDate">Show date</label>
       </div>
 
+      <div class="field">
+        <label for="timeFormat">Time format</label>
+        <select id="timeFormat">
+          <option value="24">24-hour</option>
+          <option value="12">12-hour</option>
+        </select>
+      </div>
+
       <div class="field checkbox">
         <input id="showBackground" type="checkbox" />
         <label for="showBackground">Show background</label>
@@ -148,6 +156,7 @@
       const card = document.getElementById("my-card");
       const sizeInput = document.getElementById("size");
       const showDateInput = document.getElementById("showDate");
+      const timeFormatInput = document.getElementById("timeFormat");
       const showBackgroundInput = document.getElementById("showBackground");
       const backgroundColorInput = document.getElementById("backgroundColor");
       const backgroundShapeInput = document.getElementById("backgroundShape");
@@ -166,6 +175,7 @@
           type: "custom:clock-card",
           size: Number(sizeInput.value) || 300,
           show_date: showDateInput.checked,
+          time_format: timeFormatInput.value || "24",
           show_background: showBackgroundInput.checked,
           background_color: backgroundColorInput.value || "transparent",
           background_shape: backgroundShapeInput.value || "square",
@@ -182,6 +192,7 @@
         [
           sizeInput,
           showDateInput,
+          timeFormatInput,
           showBackgroundInput,
           backgroundColorInput,
           backgroundShapeInput,
