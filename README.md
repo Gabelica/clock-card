@@ -35,3 +35,26 @@ Add the card to your dashboard using the UI or YAML:
 ```yaml
 type: custom:clock-card
 ```
+
+## Development
+
+### Releasing Updates (HACS)
+
+HACS detects updates from tags/releases
+
+For every release:
+
+1. Commit and push your changes.
+2. Create a new version tag (example `v0.0.1`).
+3. Push the tag.
+4. Create a GitHub Release from that tag.
+
+Example:
+
+```bash
+git add .
+git commit -m "release: v0.0.1"
+git push
+git tag v0.0.1
+git push origin v0.0.1
+```

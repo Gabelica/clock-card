@@ -11,7 +11,15 @@ class ClockCard extends HTMLElement {
   }
 
   setConfig(config) {
-    this.config = Object.assign({ show_date: true, size: 300 }, config || {});
+    this.config = Object.assign(
+      {
+        show_date: true,
+        size: 300,
+        background_color: "transparent",
+        number_color: "var(--primary-text-color)",
+      },
+      config || {}
+    );
     if (this.content) {
       this._applyConfig();
     }
@@ -22,6 +30,11 @@ class ClockCard extends HTMLElement {
 
     this.content.style.setProperty("--clock-size", `${this.config.size}px`);
     this.style.setProperty("--clock-size", `${this.config.size}px`);
+    this.style.setProperty(
+      "--clock-background-color",
+      this.config.background_color
+    );
+    this.style.setProperty("--clock-number-color", this.config.number_color);
 
     if (this.dateDisplay) {
       if (this.config.show_date) {
@@ -36,11 +49,12 @@ class ClockCard extends HTMLElement {
     this.innerHTML = `
       <style>
         ha-card {
-          background: transparent;
+          background: var(--clock-background-color, transparent);
           box-shadow: none;
           border: none;
           position: relative;
-          width: 100%;
+          width: var(--clock-size, 300px);
+          max-width: 100%;
           aspect-ratio: 1 / 1;
           margin: auto;
           display: flex;
@@ -54,7 +68,7 @@ class ClockCard extends HTMLElement {
           transform: translate(-50%, -50%);
           font-size: calc(var(--clock-size, 300px) * 0.3);
           font-weight: bold;
-          color: var(--primary-text-color);
+          color: var(--clock-number-color, var(--primary-text-color));
           z-index: 2;
           font-family: var(--paper-font-headline_-_font-family);
         }
@@ -64,7 +78,7 @@ class ClockCard extends HTMLElement {
           left: 50%;
           transform: translate(-50%, -50%);
           font-size: calc(var(--clock-size, 300px) * 0.1);
-          color: var(--primary-text-color);
+          color: var(--clock-number-color, var(--primary-text-color));
           z-index: 2;
         }
         .date-text.hidden {
@@ -157,7 +171,12 @@ class ClockCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return { show_date: true, size: 300 };
+    return {
+      show_date: true,
+      size: 300,
+      background_color: "transparent",
+      number_color: "var(--primary-text-color)",
+    };
   }
 
   static getConfigForm() {
@@ -165,15 +184,23 @@ class ClockCard extends HTMLElement {
       schema: [
         { name: "show_date", selector: { boolean: {} } },
         { name: "size", selector: { number: { min: 50, max: 1000 } } },
+        { name: "background_color", selector: { text: {} } },
+        { name: "number_color", selector: { text: {} } },
       ],
       computeLabel: (schema) => {
         if (schema.name === "show_date") return "Show date";
         if (schema.name === "size") return "Size (px)";
+        if (schema.name === "background_color") return "Background color";
+        if (schema.name === "number_color") return "Number color";
         return undefined;
       },
       computeHelper: (schema) => {
         if (schema.name === "size")
           return "Clock diameter in pixels (recommended 100-400).";
+        if (schema.name === "background_color")
+          return "CSS color value (example: #111111, rgba(0,0,0,0.4), transparent).";
+        if (schema.name === "number_color")
+          return "CSS color value for clock numbers/date (example: #ffffff, var(--primary-text-color)).";
         return undefined;
       },
       assertConfig: (config) => {
@@ -190,6 +217,18 @@ class ClockCard extends HTMLElement {
             throw new Error("Show date must be a boolean");
           }
         }
+        if (
+          config.background_color !== undefined &&
+          typeof config.background_color !== "string"
+        ) {
+          throw new Error("Background color must be a string");
+        }
+        if (
+          config.number_color !== undefined &&
+          typeof config.number_color !== "string"
+        ) {
+          throw new Error("Number color must be a string");
+        }
       },
     };
   }
@@ -201,5 +240,6 @@ window.customCards.push({
   type: "custom:clock-card",
   name: "Clock Card",
   preview: true,
-  description: "Clock card with optional date and configurable size",
+  description:
+    "Clock card with optional date, configurable size, and customizable colors",
 });
