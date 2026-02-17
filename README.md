@@ -2,6 +2,8 @@
 
 A sleek, modern digital clock card for Home Assistant featuring a smooth, animated radial seconds ring.
 
+<img width="630" height="481" alt="Preview image" src="https://github.com/user-attachments/assets/72580420-536b-4795-b794-cdc7bb153c82" />
+
 ## Features
 - **Real-time Digital Clock:** Large, readable HH:MM display.
 - **Animated Seconds Ring:** A smooth, radial progress bar that fills as the minute progresses.
