@@ -1,3 +1,13 @@
+const DEFAULT_CONFIG = {
+  show_date: true,
+  size: 300,
+  time_format: "24",
+  show_background: false,
+  background_color: "transparent",
+  number_color: "var(--primary-text-color)",
+  background_shape: "square",
+};
+
 class ClockCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
@@ -11,18 +21,7 @@ class ClockCard extends HTMLElement {
   }
 
   setConfig(config) {
-    this.config = Object.assign(
-      {
-        show_date: true,
-        size: 300,
-        time_format: "24",
-        show_background: false,
-        background_color: "transparent",
-        number_color: "var(--primary-text-color)",
-        background_shape: "square",
-      },
-      config || {},
-    );
+    this.config = Object.assign({}, DEFAULT_CONFIG, config || {});
     if (this.content) {
       this._applyConfig();
     }
@@ -31,7 +30,6 @@ class ClockCard extends HTMLElement {
   _applyConfig() {
     if (!this.config || !this.content) return;
 
-    this.content.style.setProperty("--clock-size", `${this.config.size}px`);
     this.style.setProperty("--clock-size", `${this.config.size}px`);
     this.style.setProperty(
       "--clock-background-color",
@@ -90,6 +88,9 @@ class ClockCard extends HTMLElement {
           font-family: var(--paper-font-headline_-_font-family);
           white-space: nowrap;
         }
+        .clock-text .time-main {
+          display: inline-block;
+        }
         .clock-text.twelve-hour {
           font-size: calc(var(--clock-size, 300px) * 0.24);
         }
@@ -100,6 +101,9 @@ class ClockCard extends HTMLElement {
           vertical-align: super;
           letter-spacing: 0.03em;
           opacity: 0.9;
+        }
+        .clock-text .meridiem.hidden {
+          display: none;
         }
         .date-text {
           position: absolute;
@@ -135,7 +139,10 @@ class ClockCard extends HTMLElement {
         }
       </style>
       <ha-card>
-        <div class="clock-text" id="time-display">--:--</div>
+        <div class="clock-text" id="time-display">
+          <span class="time-main" id="time-main">--:--</span>
+          <span class="meridiem hidden" id="time-meridiem">AM</span>
+        </div>
         <div class="date-text" id="date-display"></div>
         <svg viewBox="0 0 300 300">
           <circle cx="150" cy="150" r="140" class="bg-ring" />
@@ -150,6 +157,8 @@ class ClockCard extends HTMLElement {
     this.style.height = "100%";
     this.content = this.querySelector("ha-card");
     this.timeDisplay = this.querySelector("#time-display");
+    this.timeMain = this.querySelector("#time-main");
+    this.timeMeridiem = this.querySelector("#time-meridiem");
     this.dateDisplay = this.querySelector("#date-display");
     this.secondsRing = this.querySelector("#seconds-ring");
   }
@@ -167,11 +176,14 @@ class ClockCard extends HTMLElement {
     const meridiem = rawHours >= 12 ? "PM" : "AM";
     const seconds = now.getSeconds();
 
-    if (this.timeDisplay) {
+    if (this.timeDisplay && this.timeMain && this.timeMeridiem) {
       if (format12h) {
-        this.timeDisplay.innerHTML = `${hours}:${minutes}<span class="meridiem">${meridiem}</span>`;
+        this.timeMain.textContent = `${hours}:${minutes}`;
+        this.timeMeridiem.textContent = meridiem;
+        this.timeMeridiem.classList.remove("hidden");
       } else {
-        this.timeDisplay.textContent = `${hours}:${minutes}`;
+        this.timeMain.textContent = `${hours}:${minutes}`;
+        this.timeMeridiem.classList.add("hidden");
       }
     }
     if (this.dateDisplay) {
@@ -186,9 +198,13 @@ class ClockCard extends HTMLElement {
       if (seconds === 0) {
         this.secondsRing.style.transition = "stroke-dashoffset 1s linear";
         this.secondsRing.style.strokeDashoffset = 0;
-        setTimeout(() => {
+        if (this.ringResetTimeout) {
+          clearTimeout(this.ringResetTimeout);
+        }
+        this.ringResetTimeout = setTimeout(() => {
           this.secondsRing.style.transition = "none";
           this.secondsRing.style.strokeDashoffset = c;
+          this.ringResetTimeout = null;
         }, 950);
       } else {
         const dashoffset = c - (seconds / 60) * c;
@@ -207,6 +223,10 @@ class ClockCard extends HTMLElement {
       clearInterval(this.timer);
       this.timer = null;
     }
+    if (this.ringResetTimeout) {
+      clearTimeout(this.ringResetTimeout);
+      this.ringResetTimeout = null;
+    }
   }
 
   getCardSize() {
@@ -214,15 +234,7 @@ class ClockCard extends HTMLElement {
   }
 
   static getStubConfig() {
-    return {
-      show_date: true,
-      size: 300,
-      time_format: "24",
-      show_background: false,
-      background_color: "transparent",
-      number_color: "var(--primary-text-color)",
-      background_shape: "square",
-    };
+    return Object.assign({}, DEFAULT_CONFIG);
   }
 
   static getConfigForm() {
@@ -343,7 +355,9 @@ class ClockCard extends HTMLElement {
   }
 }
 
-customElements.define("clock-card", ClockCard);
+if (!customElements.get("clock-card")) {
+  customElements.define("clock-card", ClockCard);
+}
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "clock-card",
