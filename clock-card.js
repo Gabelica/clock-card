@@ -56,7 +56,7 @@ class ClockCard extends HTMLElement {
     if (this.timeDisplay) {
       this.timeDisplay.classList.toggle(
         "twelve-hour",
-        this.config.time_format === "12"
+        this.config.time_format === "12",
       );
     }
   }
@@ -184,8 +184,7 @@ class ClockCard extends HTMLElement {
   _formatDate(now) {
     const dateFormat = (this.config && this.config.date_format) || "locale";
     const formatter =
-      this.dateFormatters &&
-      this.dateFormatters[dateFormat]
+      this.dateFormatters && this.dateFormatters[dateFormat]
         ? this.dateFormatters[dateFormat]
         : this.dateFormatters.locale;
 
@@ -230,16 +229,8 @@ class ClockCard extends HTMLElement {
       this.secondsRing.style.strokeDasharray = c;
 
       if (seconds === 0) {
-        this.secondsRing.style.transition = "stroke-dashoffset 1s linear";
-        this.secondsRing.style.strokeDashoffset = 0;
-        if (this.ringResetTimeout) {
-          clearTimeout(this.ringResetTimeout);
-        }
-        this.ringResetTimeout = setTimeout(() => {
-          this.secondsRing.style.transition = "none";
-          this.secondsRing.style.strokeDashoffset = c;
-          this.ringResetTimeout = null;
-        }, 950);
+        this.secondsRing.style.transition = "none";
+        this.secondsRing.style.strokeDashoffset = c;
       } else {
         const dashoffset = c - (seconds / 60) * c;
         this.secondsRing.style.transition = "stroke-dashoffset 1s linear";
@@ -256,10 +247,6 @@ class ClockCard extends HTMLElement {
     if (this.timer) {
       clearInterval(this.timer);
       this.timer = null;
-    }
-    if (this.ringResetTimeout) {
-      clearTimeout(this.ringResetTimeout);
-      this.ringResetTimeout = null;
     }
   }
 
@@ -374,7 +361,9 @@ class ClockCard extends HTMLElement {
             config.date_format !== "dd_mm" &&
             config.date_format !== "mm_dd"
           ) {
-            throw new Error("Date format must be 'locale', 'dd_mm', or 'mm_dd'");
+            throw new Error(
+              "Date format must be 'locale', 'dd_mm', or 'mm_dd'",
+            );
           }
         }
         if (config.time_format !== undefined) {
