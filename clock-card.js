@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 const DEFAULT_CONFIG = {
   show_date: true,
   date_format: "locale",

@@ -5,8 +5,12 @@ A sleek, modern digital clock card for Home Assistant featuring a smooth, animat
 <img width="630" height="481" alt="Preview image" src="https://github.com/user-attachments/assets/72580420-536b-4795-b794-cdc7bb153c82" />
 
 ## Features
-- **Real-time Digital Clock:** Large, readable HH:MM display.
+- **Real-time Digital Clock:** 24-hour or 12-hour format.
 - **Animated Seconds Ring:** A smooth, radial progress bar that fills as the minute progresses.
+- **Configurable Date Display:** Toggle date visibility and choose format `Browser`, `DD/MM`, or `MM/DD`.
+- **Flexible Styling:** Configure size, number color, background color, and background shape (`square` or `circle`).
+- **Background Toggle:** Disable background entirely for transparent mode.
+- **UI Editor Support:** All options are available in the Home Assistant card editor.
 - **Lightweight:** Pure JavaScript/CSS with no external dependencies.
 
 ## Installation
@@ -16,7 +20,7 @@ A sleek, modern digital clock card for Home Assistant featuring a smooth, animat
 2. Go to **Frontend**.
 3. Click the **3 dots** (top right) and select **Custom repositories**.
 4. Paste the URL of this repository: `https://github.com/Gabelica/clock-card`
-5. Select **Lovelace** as the category and click **Add**.
+5. Select **Dashboard** as the type and click **Add**.
 6. Find the **Clock Card** in the list and click **Download**.
 
 ### Method 2: Manual
@@ -32,6 +36,14 @@ Add the card to your dashboard using the UI or YAML:
 
 ```yaml
 type: custom:clock-card
+show_date: true
+date_format: locale # locale | dd_mm | mm_dd
+time_format: "24" # "24" | "12"
+size: 300
+show_background: true
+background_shape: circle # square | circle
+background_color: "rgba(0, 0, 0, 0.55)"
+number_color: "#f1f1f1"
 ```
 
 ## Development
@@ -63,3 +75,18 @@ git push
 git tag v0.0.1
 git push origin v0.0.1
 ```
+
+## Contributing
+
+Contributions are welcome.
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes and test with `preview.html` and Home Assistant.
+4. Open a Pull Request with a clear summary of changes.
+
+## License
+
+This project is open source and licensed under the MIT License.
+
+See `LICENSE` for details.
