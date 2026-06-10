@@ -1,6 +1,5 @@
 {
     "name": "Clock Card",
     "filename": "clock-card.js",
-    "render_readme": true,
-    "content_in_root": true
+    "render_readme": true
 }
