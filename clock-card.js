@@ -253,7 +253,7 @@ class ClockCard extends HTMLElement {
       this._hasAction(this.config.tap_action) ||
       this._hasAction(this.config.hold_action) ||
       this._hasAction(this.config.double_tap_action);
-    this.content.style.cursor = interactive ? "pointer" : "default";
+    this.style.cursor = interactive ? "pointer" : "default";
   }
 
   init() {
@@ -374,14 +374,14 @@ class ClockCard extends HTMLElement {
     this.dateDisplay = this.querySelector("#date-display");
     this.secondsRing = this.querySelector("#seconds-ring");
 
-    // Attach the action handler to ha-card
+    // Attach the action handler to the host element so the whole card cell is clickable
     const hasDoubleTap = this._hasAction(this.config && this.config.double_tap_action);
-    attachActionHandler(this.content, {
+    attachActionHandler(this, {
       hasHold: true,
       hasDoubleTap,
     });
 
-    this.content.addEventListener("action", (e) => {
+    this.addEventListener("action", (e) => {
       const actionType = e.detail.action; // 'tap' | 'hold' | 'double_tap'
       const actionCfgKey = `${actionType}_action`;
       const actionCfg = this.config && this.config[actionCfgKey];
