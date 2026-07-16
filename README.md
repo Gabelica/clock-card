@@ -11,6 +11,7 @@ A sleek, modern digital clock card for Home Assistant featuring a smooth, animat
 - **Flexible Styling:** Configure size, number color, background color, and background shape (`square` or `circle`).
 - **Background Toggle:** Disable background entirely for transparent mode.
 - **UI Editor Support:** All options are available in the Home Assistant card editor.
+- **Visibility Reporting:** Optionally toggle an `input_boolean` while the card is on screen — useful for detecting which dashboard view is currently displayed (e.g. from Node-RED).
 - **Lightweight:** Pure JavaScript/CSS with no external dependencies.
 
 ## Installation
@@ -44,6 +45,7 @@ show_background: true
 background_shape: circle # square | circle
 background_color: "rgba(0, 0, 0, 0.55)"
 number_color: "#f1f1f1"
+report_entity: input_boolean.clock_view_active # optional, turned on while the card is mounted
 ```
 
 ## Development
