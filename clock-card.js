@@ -191,6 +191,7 @@ const DEFAULT_CONFIG = {
   background_color: "transparent",
   number_color: "var(--primary-text-color)",
   background_shape: "square",
+  report_entity: null,
   tap_action: DEFAULT_ACTION,
   hold_action: DEFAULT_ACTION,
   double_tap_action: DEFAULT_ACTION,
@@ -201,6 +202,15 @@ const DEFAULT_CONFIG = {
 // ---------------------------------------------------------------------------
 
 class ClockCard extends HTMLElement {
+  /**
+   * Fires when the card is mounted into the DOM. `this._hass` may not be set
+   * yet at this point, so we only flag that an "arrived" presence report is
+   * pending — the hass setter fires it once hass becomes available.
+   */
+  connectedCallback() {
+    this._pendingArrivalReport = true;
+  }
+
   set hass(hass) {
     this._hass = hass;
     if (!this.content) {
@@ -210,6 +220,15 @@ class ClockCard extends HTMLElement {
       }
     }
     this.updateClock();
+
+    if (this._pendingArrivalReport && this._hass) {
+      this._pendingArrivalReport = false;
+      if (this.config && this.config.report_entity) {
+        this._hass.callService("input_boolean", "turn_on", {
+          entity_id: this.config.report_entity,
+        });
+      }
+    }
   }
 
   setConfig(config) {
@@ -449,6 +468,12 @@ class ClockCard extends HTMLElement {
       clearInterval(this.timer);
       this.timer = null;
     }
+    this._pendingArrivalReport = false;
+    if (this._hass && this.config && this.config.report_entity) {
+      this._hass.callService("input_boolean", "turn_off", {
+        entity_id: this.config.report_entity,
+      });
+    }
   }
 
   getCardSize() {
@@ -581,6 +606,10 @@ class ClockCard extends HTMLElement {
           },
           condition: { name: "show_background", value: true },
         },
+        {
+          name: "report_entity",
+          selector: { entity: { domain: "input_boolean" } },
+        },
         actionSchema("tap_action", "Tap action"),
         actionSchema("hold_action", "Hold action"),
         actionSchema("double_tap_action", "Double tap action"),
@@ -596,6 +625,7 @@ class ClockCard extends HTMLElement {
           background_color: "Background color",
           number_color: "Number color",
           background_shape: "Background shape",
+          report_entity: "Card visibility helper (input_boolean)",
           tap_action: "Tap action",
           hold_action: "Hold action",
           double_tap_action: "Double tap action",
@@ -621,6 +651,8 @@ class ClockCard extends HTMLElement {
           background_color: "CSS color value (e.g. #111111, rgba(0,0,0,0.4)).",
           number_color: "CSS color for numbers/date (e.g. #ffffff, var(--primary-text-color)).",
           background_shape: "Square or circle background.",
+          report_entity:
+            "Optional. When set, this input_boolean is turned on while this card is shown on screen and turned off when it isn't — useful for detecting which dashboard view is currently displayed.",
           navigation_path: "HA path (e.g. /lovelace/0) or any URL path.",
           navigation_replace: "Replace the current history entry instead of pushing a new one.",
           url_path: "Full URL to open (e.g. https://example.com).",
@@ -657,6 +689,12 @@ class ClockCard extends HTMLElement {
         if (config.background_shape !== undefined) {
           if (!["square", "circle"].includes(config.background_shape))
             throw new Error("background_shape must be 'square' or 'circle'");
+        }
+        if (config.report_entity !== undefined && config.report_entity !== null) {
+          if (typeof config.report_entity !== "string")
+            throw new Error("report_entity must be a string");
+          if (!config.report_entity.startsWith("input_boolean."))
+            throw new Error("report_entity must be an input_boolean entity (input_boolean.*)");
         }
 
         const validActions = ["none", "more-info", "toggle", "navigate", "url", "perform-action", "assist"];
